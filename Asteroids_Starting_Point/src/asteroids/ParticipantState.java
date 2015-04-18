@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import asteroids.participants.Asteroid;
+import asteroids.participants.Bullet;
 
 /**
  * Keeps track of the Participants, their motions, and
@@ -82,6 +83,53 @@ public class ParticipantState
     }
     
     /**
+     * Returns the number of bullets that are active participants
+     */
+    public int countBullets ()
+    {
+        int count = 0;
+        for (Participant p : participants)
+        {
+            if (p instanceof Bullet && !p.isExpired())
+            {
+                count++;
+            }
+        }
+        for (Participant p : pendingAdds)
+        {
+            if (p instanceof Bullet && !p.isExpired())
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * Changes the speed of active asteroids 
+     */
+    public void updateAstroidSpeed (int level)
+    {
+    	double currentSpeed;
+        for (Participant p : participants)
+        {
+            if (p instanceof Asteroid && !p.isExpired())
+            {
+                currentSpeed = p.getSpeed();
+                p.setSpeed(currentSpeed + level/2);
+            }
+        }
+        for (Participant p : pendingAdds)
+        {
+            if (p instanceof Asteroid && !p.isExpired())
+            {
+            	currentSpeed = p.getSpeed();
+                p.setSpeed(currentSpeed + level/2);
+            }
+        }
+    }
+    
+    /**
      * Moves each of the active participants to simulate the passage of time.
      */
     public void moveParticipants ()
@@ -151,6 +199,8 @@ public class ParticipantState
                         p1.collidedWith(p2);
                         p2.collidedWith(p1);
                     }
+                    if (p1.isExpired())
+                        break;
                 }
             }
         }

@@ -32,7 +32,7 @@ public class Asteroid extends Participant implements ShipDestroyer, BulletDestro
      * coordinates with a random rotation. Its velocity has the given speed but
      * is in a random direction.
      */
-    public Asteroid (int variety, int size, double x, double y, int speed, Controller controller)
+    public Asteroid (int variety, int size, double x, double y, double speed, Controller controller)
     {
         // Make sure size and variety are valid
         if (size < 0 || size > 2)
@@ -149,6 +149,12 @@ public class Asteroid extends Participant implements ShipDestroyer, BulletDestro
         {
             // Expire the asteroid
             Participant.expire(this);
+            
+          //Create the Dust from the asteroid that was destroyed
+        	controller.addParticipant(new Dust(this));
+        	controller.addParticipant(new Dust(this));
+        	controller.addParticipant(new Dust(this));
+        	controller.addParticipant(new Dust(this));
 
             // Create two smaller asteroids. Put them at the same position
             // as the one that was just destroyed and give them a random
@@ -156,9 +162,9 @@ public class Asteroid extends Participant implements ShipDestroyer, BulletDestro
             int size = getSize() - 1;
             if (size >= 0)
             {
-                int speed = 2;
-                controller.addParticipant(new Asteroid(RANDOM.nextInt(4), size, getX(), getY(), speed, controller));
-                controller.addParticipant(new Asteroid(RANDOM.nextInt(4), size, getX(), getY(), speed, controller));
+                double speed = getSpeed();
+                controller.addParticipant(new Asteroid(RANDOM.nextInt(4), size, getX(), getY(), speed + 1, controller));
+                controller.addParticipant(new Asteroid(RANDOM.nextInt(4), size, getX(), getY(), speed + 1, controller));
             }
             
             // Inform the controller

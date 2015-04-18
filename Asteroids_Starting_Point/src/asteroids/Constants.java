@@ -69,6 +69,11 @@ public class Constants
      * Number of asteroids that must be destroyed to complete a level.
      */
     public final static int ASTEROID_COUNT = 28;
+    
+    /**
+     * Duration in milliseconds of a dust particle before it disappears.
+     */
+    public final static int DUST_DURATION = 500;
 
     /**
      * Duration in milliseconds of a bullet before it disappears.

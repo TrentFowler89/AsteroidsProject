@@ -1,20 +1,14 @@
 package asteroids.participants;
 
-import java.awt.Graphics;
 import java.awt.Shape;
 
 import asteroids.Participant;
 import asteroids.destroyers.AsteroidDestroyer;
 import asteroids.destroyers.BulletDestroyer;
-import asteroids.destroyers.ShipDestroyer;
-
-import java.awt.Shape;
 import java.awt.geom.*;
 
-import asteroids.Controller;
-import asteroids.Participant;
 import asteroids.ParticipantCountdownTimer;
-import asteroids.destroyers.*;
+
 import static asteroids.Constants.*;
 
 /**
@@ -24,22 +18,11 @@ public class Bullet extends Participant implements AsteroidDestroyer
 {
     // The outline of the bullet
     private Shape outline;
-
-    // Game controller
-    //private Controller controller;
-    
-    // Ship from which the bullet is created
-    //private Ship ship;
-
-    
-    
+        
     // Constructs a bullet at the nose of the ship
     // that is pointed in the given direction.
     public Bullet (Ship ship) //, double direction, int speed, Controller controller)
-    {
-        //this.controller = controller;
-        //this.ship = ship;
-        
+    {   
         //double shipNoseX = ship.getXNose();
         //double shipNoseY = ship.getYNose();
         

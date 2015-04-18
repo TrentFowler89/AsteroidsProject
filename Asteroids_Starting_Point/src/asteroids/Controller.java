@@ -7,6 +7,7 @@ import javax.swing.*;
 
 import asteroids.participants.Asteroid;
 import asteroids.participants.Bullet;
+import asteroids.participants.Dust;
 import asteroids.participants.Ship;
 import static asteroids.Constants.*;
 
@@ -42,8 +43,6 @@ public class Controller implements KeyListener, ActionListener
     // The game display
     private Display display;
     
-    //Number of Bullets on screen
-    private int bulletCount;
 
 	private boolean turnLeft = false;
 
@@ -147,10 +146,10 @@ public class Controller implements KeyListener, ActionListener
      */
     private void placeAsteroids ()
     {
-        addParticipant(new Asteroid(0, 2, EDGE_OFFSET, EDGE_OFFSET, 3, this));
-        addParticipant(new Asteroid(1, 2, SIZE - EDGE_OFFSET, EDGE_OFFSET, 3, this));
-        addParticipant(new Asteroid(2, 2, EDGE_OFFSET, SIZE - EDGE_OFFSET, 3, this));
-        addParticipant(new Asteroid(3, 2, SIZE - EDGE_OFFSET, SIZE - EDGE_OFFSET, 3, this));
+        addParticipant(new Asteroid(0, 2, EDGE_OFFSET, EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(1, 2, SIZE - EDGE_OFFSET, EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(2, 2, EDGE_OFFSET, SIZE - EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(3, 2, SIZE - EDGE_OFFSET, SIZE - EDGE_OFFSET, 3.0, this));
     }
 
     /**
@@ -182,8 +181,37 @@ public class Controller implements KeyListener, ActionListener
         level = 1;
         score = 0;
 
-        // Start listening to events
+     // Start listening to events (but don't listen twice)
+        display.removeKeyListener(this);
         display.addKeyListener(this);
+
+        // Give focus to the game screen
+        display.requestFocusInWindow();
+        
+        //refresh the display labels
+        display.refreshLabels(this);
+    }
+    /**
+     * Sets things up and begins a new game.
+     */
+    private void nextLevelScreen ()
+    {
+        //Update Level
+    	this.level++;
+    	// Clear the screen
+        clear();
+        
+        //Place a ship
+        placeShip();
+
+        // Place four asteroids
+        placeAsteroids();
+        
+        //Update the Asteroid Speed
+        pstate.updateAstroidSpeed(this.level);
+        
+        //Add appropriate alien ship based on level achieved
+
 
         // Give focus to the game screen
         display.requestFocusInWindow();
@@ -210,6 +238,11 @@ public class Controller implements KeyListener, ActionListener
         
         // Display a legend
         display.setLegend("Ouch!");
+        
+        //Reset Controls
+        turnLeft = false;
+        turnRight = false;
+        accelerate = false;
 
         // Decrement lives
         lives--;
@@ -226,39 +259,30 @@ public class Controller implements KeyListener, ActionListener
      */
     public void asteroidDestroyed (int size)
     {
-        // If all the asteroids are gone, schedule a transition
+    	
+    	//Update the Score
+    	if(size == 2)
+    	{
+    		score+=20;
+    	}
+    	else if(size ==1)
+    	{
+    		score+=50;
+    	}
+    	else if(size == 0)
+    	{
+    		score+=100;
+    	}
+    	display.refreshLabels(this);
+    	
+    	// If all the asteroids are gone, schedule a transition
         if (pstate.countAsteroids() == 0)
         {
             scheduleTransition(END_DELAY);
-            level++;
-        }
-        else
-        {
-        	if(size == 2)
-        	{
-        		score+=20;
-        	}
-        	else if(size ==1)
-        	{
-        		score+=50;
-        	}
-        	else if(size == 0)
-        	{
-        		score+=100;
-        	}
-        	display.refreshLabels(this);
         }
     }
     
-    /**
-     * The bullet has been destroyed
-     */
-    public void bulletDestroyed ()
-    {
-        // Decrement bulletCount
-        this.bulletCount--;
-
-    }
+ 
 
     /**
      * Schedules a transition m msecs in the future
@@ -343,6 +367,12 @@ public class Controller implements KeyListener, ActionListener
             {
                 placeShip();
             }
+            
+            else if(pstate.countAsteroids() == 0)
+            {
+            	nextLevelScreen();
+            }
+            
         }
     }
 
@@ -352,24 +382,24 @@ public class Controller implements KeyListener, ActionListener
     @Override
     public void keyPressed (KeyEvent e)
     {
-        if (e.getKeyCode() == KeyEvent.VK_LEFT && ship != null)
+        if ((e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) && ship != null)
         {
             this.turnLeft = true;
         }
-        else if (e.getKeyCode() == KeyEvent.VK_RIGHT && ship != null)
+        else if ((e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) && ship != null)
         {
         	this.turnRight = true;
         }
-        else if (e.getKeyCode() == KeyEvent.VK_UP && ship != null)
+        else if ((e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) && ship != null)
         {
         	this.accelerate = true;
         }
-        else if ((e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_DOWN) && ship != null)
+        else if ((e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) && ship != null)
         {
-        	if(this.bulletCount < BULLET_LIMIT)
+        	if(pstate.countBullets() < BULLET_LIMIT)
         	{
-        		addParticipant(new Bullet(ship)); //, ship.getDirection(), BULLET_SPEED, this));
-        	}
+        		addParticipant(new Bullet(ship));
+        	}	
         }
     }
 
@@ -387,15 +417,15 @@ public class Controller implements KeyListener, ActionListener
     @Override
     public void keyReleased (KeyEvent e)
     {     
-    	 if (e.getKeyCode() == KeyEvent.VK_LEFT && ship != null)
+    	if ((e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) && ship != null)
          {
              this.turnLeft = false;
          }
-         else if (e.getKeyCode() == KeyEvent.VK_RIGHT && ship != null)
+    	else if ((e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) && ship != null)
          {
          	this.turnRight = false;
          }
-         else if (e.getKeyCode() == KeyEvent.VK_UP && ship != null)
+    	else if ((e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) && ship != null)
          {
          	this.accelerate = false;
          }
