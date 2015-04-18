@@ -1,0 +1,117 @@
+package asteroids.participants;
+
+import java.awt.Graphics;
+import java.awt.Shape;
+
+import asteroids.Participant;
+import asteroids.destroyers.AsteroidDestroyer;
+import asteroids.destroyers.BulletDestroyer;
+import asteroids.destroyers.ShipDestroyer;
+
+import java.awt.Shape;
+import java.awt.geom.*;
+
+import asteroids.Controller;
+import asteroids.Participant;
+import asteroids.ParticipantCountdownTimer;
+import asteroids.destroyers.*;
+import static asteroids.Constants.*;
+
+/**
+ * Represents bullet
+ */
+public class Bullet extends Participant implements AsteroidDestroyer
+{
+    // The outline of the bullet
+    private Shape outline;
+
+    // Game controller
+    //private Controller controller;
+    
+    // Ship from which the bullet is created
+    //private Ship ship;
+
+    
+    
+    // Constructs a bullet at the nose of the ship
+    // that is pointed in the given direction.
+    public Bullet (Ship ship) //, double direction, int speed, Controller controller)
+    {
+        //this.controller = controller;
+        //this.ship = ship;
+        
+        //double shipNoseX = ship.getXNose();
+        //double shipNoseY = ship.getYNose();
+        
+        setPosition(ship.getXNose() , ship.getYNose());
+        
+        //setRotation(direction);
+        setVelocity(BULLET_SPEED, ship.getRotation());
+        //setRotation(2 * Math.PI * RANDOM.nextDouble());
+        
+        Path2D.Double poly = new Path2D.Double();
+        poly.moveTo(1, 1);
+        poly.lineTo(-1, 1);
+        poly.lineTo(-1, -1);
+        poly.lineTo(1, -1);
+        poly.closePath();
+        outline = poly;
+       
+        //Ellipse2D.Double circle = new Ellipse2D.Double(ship.getXNose(), ship.getYNose(), 1.0, 1.0);
+        //outline = circle;
+        
+        // Schedule an acceleration in two seconds
+        new ParticipantCountdownTimer(this, "remove", BULLET_DURATION);
+    }
+
+
+    @Override
+    protected Shape getOutline ()
+    {
+        return outline;
+    }
+
+    /**
+     * Calls the base move method
+     */
+    public void move ()
+    {
+    	super.move();
+    }
+
+
+    /**
+     * When a bullet collides with a BulletDestroyer, it expires
+     */
+    @Override
+    public void collidedWith (Participant p)
+    {
+        if (p instanceof BulletDestroyer)
+        {
+            // Expire the bullet from the game
+            Participant.expire(this);
+            
+
+        }
+    }
+    
+    /**
+     * This method is invoked when a ParticipantCountdownTimer completes
+     * its countdown.
+     */
+    @Override
+    public void countdownComplete (Object payload)
+    {
+        // Give a burst of acceleration, then schedule another
+        // burst for 200 msecs from now.
+        if (payload.equals("remove"))
+        {
+        	// Expire the bullet from the game
+            Participant.expire(this);
+           
+        }
+    }
+}
+
+
+
