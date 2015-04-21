@@ -37,8 +37,6 @@ public class Ship extends Participant implements AsteroidDestroyer
         poly.closePath();
         outline = poly;
         
-        // Schedule an acceleration in two seconds
-        //new ParticipantCountdownTimer(this, "move", 2000);
     }
 
     /**

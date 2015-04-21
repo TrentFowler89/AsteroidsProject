@@ -7,28 +7,26 @@ import asteroids.Participant;
 import asteroids.ParticipantCountdownTimer;
 import static asteroids.Constants.*;
 
-public class Dust extends Participant {
+public class Flame extends Participant {
 
 	// The outline of the Debris
     private Shape outline;
         
     // Constructs a bullet at the nose of the ship
     // that is pointed in the given direction.
-    public Dust (Asteroid asteroid) 
+    public Flame (Ship ship) 
     {   
         
-        setPosition(asteroid.getX() , asteroid.getY());
+        setPosition(ship.getX() , ship.getY());
         
         
-        setVelocity(5, 2 * Math.PI * RANDOM.nextDouble());
+        setVelocity(0.5, 2 * Math.PI * RANDOM.nextDouble());
         setRotation(RANDOM.nextDouble());
         setDirection(2 * Math.PI * RANDOM.nextDouble());
         
         Path2D.Double poly = new Path2D.Double();
-        poly.moveTo(1, 1);
-        poly.lineTo(0, 1);
-        poly.lineTo(0, 0);
-        poly.lineTo(1, 0);
+        poly.moveTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
+        poly.lineTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
         poly.closePath();
         outline = poly;
        
@@ -36,7 +34,7 @@ public class Dust extends Participant {
         //outline = circle;
         
         // Schedule an acceleration in two seconds
-        new ParticipantCountdownTimer(this, "remove", DUST_DURATION);
+        new ParticipantCountdownTimer(this, "remove", 2000);
     }
 
 

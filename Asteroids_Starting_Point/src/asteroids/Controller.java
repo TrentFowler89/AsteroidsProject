@@ -7,7 +7,7 @@ import javax.swing.*;
 
 import asteroids.participants.Asteroid;
 import asteroids.participants.Bullet;
-import asteroids.participants.Dust;
+import asteroids.participants.Debris;
 import asteroids.participants.Ship;
 import static asteroids.Constants.*;
 
@@ -233,11 +233,16 @@ public class Controller implements KeyListener, ActionListener
      */
     public void shipDestroyed ()
     {
-        // Null out the ship
+    	//Create the floating Debris
+        this.addParticipant(new Debris(ship));
+        this.addParticipant(new Debris(ship));
+        this.addParticipant(new Debris(ship));
+        
+    	// Null out the ship
         ship = null;
         
         // Display a legend
-        display.setLegend("Ouch!");
+        display.setLegend("");
         
         //Reset Controls
         turnLeft = false;
