@@ -12,13 +12,18 @@ import static asteroids.Constants.*;
 /**
  * Represents ships
  */
-public class Ship extends Participant implements AsteroidDestroyer
+public class Ship extends Participant implements AsteroidDestroyer, AlienShipDestroyer, AlienBulletDestroyer
 {
     // The outline of the ship
     private Shape outline;
+    
+    //The outline of a ship with a flame
+    private Shape outlineFlame;
 
     // Game controller
     private Controller controller;
+
+	
 
     // Constructs a ship at the specified coordinates
     // that is pointed in the given direction.
@@ -28,6 +33,7 @@ public class Ship extends Participant implements AsteroidDestroyer
         setPosition(x, y);
         setRotation(direction);
 
+       //Creates a ship without a flame
         Path2D.Double poly = new Path2D.Double();
         poly.moveTo(20, 0);
         poly.lineTo(-20, 12);
@@ -36,6 +42,19 @@ public class Ship extends Participant implements AsteroidDestroyer
         poly.lineTo(-20, -12);
         poly.closePath();
         outline = poly;
+        
+        //Creates a ship with a flame
+        Path2D.Double poly2 = new Path2D.Double();
+        poly2.moveTo(20, 0);
+        poly2.lineTo(-20, 12);
+        poly2.lineTo(-13, 10);
+        poly2.lineTo(-13, -5);
+        poly2.lineTo(-25, 0);
+        poly2.lineTo(-13, 5);
+        poly2.lineTo(-13, -10);
+        poly2.lineTo(-20, -12);
+        poly2.closePath();
+        outlineFlame = poly2;
         
     }
 
@@ -51,7 +70,7 @@ public class Ship extends Participant implements AsteroidDestroyer
     }
 
     /**
-     * Returns the x-coordinate of the point on the screen where the ship's nose
+     * Returns the y-coordinate of the point on the screen where the ship's nose
      * is located.
      */
     public double getYNose ()
@@ -64,7 +83,14 @@ public class Ship extends Participant implements AsteroidDestroyer
     @Override
     protected Shape getOutline ()
     {
+    	if(controller.getAccelerate() == true && System.currentTimeMillis() % 3 == 0)
+    	{
+    		return outlineFlame;
+    	}
+    	else
+    	{
         return outline;
+    	}
     }
 
     /**

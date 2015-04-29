@@ -16,9 +16,6 @@ package asteroids;
  * to do:
  * 
 
-
-When you accelerate the ship, a small flame is animated.
-
 At level 2 an alien ship appears a few seconds into the level.  It follows a zig-zag path, periodically firing bullets in random directions.  
 When it is destroyed, you earn 200 points.  A few seconds later, it appears again.
 

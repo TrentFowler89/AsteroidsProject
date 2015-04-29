@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import javax.swing.*;
 
+import asteroids.participants.AlienShip;
 import asteroids.participants.Asteroid;
 import asteroids.participants.Bullet;
 import asteroids.participants.Debris;
@@ -43,12 +44,17 @@ public class Controller implements KeyListener, ActionListener
     // The game display
     private Display display;
     
-
+    // The state of the Left Turn keys
 	private boolean turnLeft = false;
-
+	
+	// The state of the Right Turn keys
 	private boolean turnRight = false;
-
+	
+	// The state of the accelerate keys
 	private boolean accelerate = false;
+
+	// The state of the Alien Ship
+	private AlienShip alienShip;
 
     /**
      * Constructs a controller to coordinate the game and screen
@@ -104,6 +110,14 @@ public class Controller implements KeyListener, ActionListener
     {
     	return this.score;
     }
+    
+    /**
+     * Returns the value of the accelerate variable
+     */
+    public boolean getAccelerate() 
+    {
+		return accelerate;
+	}
 
     /**
      * Configures the game screen to display the splash screen
@@ -139,6 +153,28 @@ public class Controller implements KeyListener, ActionListener
         addParticipant(ship);
         display.setLegend("");
     }
+    
+    /**
+     * Place a new alien ship in the center of the screen. Remove any existing ship
+     * first.
+     */
+    private void placeAlienShip ()
+    {
+        // Expire previous Alien Ship
+        Participant.expire(alienShip);
+        
+        if (level == 2)
+        {
+        alienShip = new AlienShip(SIZE, SIZE, 1, -Math.PI / 2, this);
+        addParticipant(alienShip);
+        }
+        else if (level > 2)
+        {
+        	alienShip = new AlienShip(SIZE, SIZE, 0, -Math.PI / 2, this);
+        	addParticipant(alienShip);
+        }
+        display.setLegend("");
+    }
 
     /**
      * Places four asteroids near the corners of the screen. Gives them random
@@ -146,10 +182,10 @@ public class Controller implements KeyListener, ActionListener
      */
     private void placeAsteroids ()
     {
-        addParticipant(new Asteroid(0, 2, EDGE_OFFSET, EDGE_OFFSET, 3.0, this));
-        addParticipant(new Asteroid(1, 2, SIZE - EDGE_OFFSET, EDGE_OFFSET, 3.0, this));
-        addParticipant(new Asteroid(2, 2, EDGE_OFFSET, SIZE - EDGE_OFFSET, 3.0, this));
-        addParticipant(new Asteroid(3, 2, SIZE - EDGE_OFFSET, SIZE - EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(0, 0, EDGE_OFFSET, EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(1, 0, SIZE - EDGE_OFFSET, EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(2, 0, EDGE_OFFSET, SIZE - EDGE_OFFSET, 3.0, this));
+        addParticipant(new Asteroid(3, 0, SIZE - EDGE_OFFSET, SIZE - EDGE_OFFSET, 3.0, this));
     }
 
     /**
@@ -160,6 +196,7 @@ public class Controller implements KeyListener, ActionListener
         pstate.clear();
         display.setLegend("");
         ship = null;
+        alienShip = null;
     }
 
     /**
@@ -181,7 +218,7 @@ public class Controller implements KeyListener, ActionListener
         level = 1;
         score = 0;
 
-     // Start listening to events (but don't listen twice)
+        // Start listening to events (but don't listen twice)
         display.removeKeyListener(this);
         display.addKeyListener(this);
 
@@ -192,12 +229,13 @@ public class Controller implements KeyListener, ActionListener
         display.refreshLabels(this);
     }
     /**
-     * Sets things up and begins a new game.
+     * Clears the screen and sets up the next level.
      */
     private void nextLevelScreen ()
     {
         //Update Level
     	this.level++;
+    	
     	// Clear the screen
         clear();
         
@@ -210,8 +248,8 @@ public class Controller implements KeyListener, ActionListener
         //Update the Asteroid Speed
         pstate.updateAstroidSpeed(this.level);
         
-        //Add appropriate alien ship based on level achieved
-
+        //Set a timer to place the alien ship 
+        scheduleTransition(ALIEN_DELAY);
 
         // Give focus to the game screen
         display.requestFocusInWindow();
@@ -258,26 +296,36 @@ public class Controller implements KeyListener, ActionListener
         // Since the ship was destroyed, schedule a transition
         scheduleTransition(END_DELAY);
     }
+    
+    public void alienShipDestroyed(int size) {
+       	//Create the floating Debris
+        this.addParticipant(new Debris(alienShip));
+        this.addParticipant(new Debris(alienShip));
+        this.addParticipant(new Debris(alienShip));
+        this.addParticipant(new Debris(alienShip));
+        this.addParticipant(new Debris(alienShip));
+        this.addParticipant(new Debris(alienShip));
+        
+    	// Null out the alien ship
+        alienShip = null;
+
+        //Update the Score
+    	score+=ALIENSHIP_SCORE[size];
+        
+        //Update Labels
+        display.refreshLabels(this);
+        
+        // Since the ship was destroyed, schedule a transition
+        scheduleTransition(ALIEN_DELAY);
+	}
 
     /**
      * An asteroid of the given size has been destroyed
      */
     public void asteroidDestroyed (int size)
     {
-    	
     	//Update the Score
-    	if(size == 2)
-    	{
-    		score+=20;
-    	}
-    	else if(size ==1)
-    	{
-    		score+=50;
-    	}
-    	else if(size == 0)
-    	{
-    		score+=100;
-    	}
+    	score+=ASTEROID_SCORE[size];
     	display.refreshLabels(this);
     	
     	// If all the asteroids are gone, schedule a transition
@@ -366,17 +414,28 @@ public class Controller implements KeyListener, ActionListener
             {
                 finalScreen();
             }
+            
+            // If all the asteroids have been destroyed, go to the next level
+            else if(pstate.countAsteroids() == 0)
+            {
+            	nextLevelScreen();
+            }
 
             // If the ship was destroyed, place a new one and continue
             else if (ship == null)
             {
                 placeShip();
+                
+                //if the ship was destroyed by and alien ship, both are created
+                if (alienShip == null && level > 1) {
+    				placeAlienShip();
+    			}
             }
             
-            else if(pstate.countAsteroids() == 0)
-            {
-            	nextLevelScreen();
-            }
+			// If there is no alien ship, place a new one
+			else if (alienShip == null && level > 1) {
+				placeAlienShip();
+			}
             
         }
     }

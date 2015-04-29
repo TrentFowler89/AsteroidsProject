@@ -20,7 +20,7 @@ public class Dust extends Participant {
         setPosition(asteroid.getX() , asteroid.getY());
         
         
-        setVelocity(5, 2 * Math.PI * RANDOM.nextDouble());
+        setVelocity(1, 2 * Math.PI * RANDOM.nextDouble());
         setRotation(RANDOM.nextDouble());
         setDirection(2 * Math.PI * RANDOM.nextDouble());
         

@@ -12,8 +12,7 @@ public class Debris extends Participant {
 	// The outline of the Debris
     private Shape outline;
         
-    // Constructs a bullet at the nose of the ship
-    // that is pointed in the given direction.
+    // Constructs debris in the center of the ship.
     public Debris (Ship ship) 
     {   
         
@@ -29,9 +28,27 @@ public class Debris extends Participant {
         poly.lineTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
         poly.closePath();
         outline = poly;
-       
-        //Ellipse2D.Double circle = new Ellipse2D.Double(ship.getXNose(), ship.getYNose(), 1.0, 1.0);
-        //outline = circle;
+        
+        // Schedule an acceleration in two seconds
+        new ParticipantCountdownTimer(this, "remove", 2000);
+    }
+    
+ // Constructs debris in the center of the alien ship.
+    public Debris (AlienShip ship) 
+    {   
+        
+        setPosition(ship.getX() , ship.getY());
+        
+        
+        setVelocity(0.5, 2 * Math.PI * RANDOM.nextDouble());
+        setRotation(RANDOM.nextDouble());
+        setDirection(2 * Math.PI * RANDOM.nextDouble());
+        
+        Path2D.Double poly = new Path2D.Double();
+        poly.moveTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
+        poly.lineTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
+        poly.closePath();
+        outline = poly;
         
         // Schedule an acceleration in two seconds
         new ParticipantCountdownTimer(this, "remove", 2000);

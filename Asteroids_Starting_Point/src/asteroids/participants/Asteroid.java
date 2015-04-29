@@ -5,15 +5,14 @@ import java.awt.geom.*;
 
 import asteroids.Controller;
 import asteroids.Participant;
-import asteroids.destroyers.AsteroidDestroyer;
-import asteroids.destroyers.BulletDestroyer;
-import asteroids.destroyers.ShipDestroyer;
+import asteroids.destroyers.*;
 import static asteroids.Constants.*;
 
 /**
  * Represents asteroids
  */
-public class Asteroid extends Participant implements ShipDestroyer, BulletDestroyer
+public class Asteroid extends Participant implements ShipDestroyer, BulletDestroyer, 
+										AlienShipDestroyer, AlienBulletDestroyer
 {
     // The size of the asteroid (0 = small, 1 = medium, 2 = large)
     private int size;

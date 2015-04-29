@@ -1,40 +1,41 @@
 package asteroids.participants;
 
 import java.awt.Shape;
-import java.awt.geom.Path2D;
 
 import asteroids.Participant;
+import asteroids.destroyers.*;
+import java.awt.geom.*;
+
 import asteroids.ParticipantCountdownTimer;
+
 import static asteroids.Constants.*;
 
-public class Flame extends Participant {
-
-	// The outline of the Debris
+/**
+ * Represents bullet
+ */
+public class AlienBullet extends Participant implements ShipDestroyer, AsteroidDestroyer
+{
+    // The outline of the bullet
     private Shape outline;
         
-    // Constructs a bullet at the nose of the ship
+    // Constructs a bullet at the center of the ship
     // that is pointed in the given direction.
-    public Flame (Ship ship) 
+    public AlienBullet (AlienShip ship, Double direction) //, double direction, int speed, Controller controller)
     {   
         
         setPosition(ship.getX() , ship.getY());
-        
-        
-        setVelocity(0.5, 2 * Math.PI * RANDOM.nextDouble());
-        setRotation(RANDOM.nextDouble());
-        setDirection(2 * Math.PI * RANDOM.nextDouble());
+        setVelocity(BULLET_SPEED, direction);
         
         Path2D.Double poly = new Path2D.Double();
-        poly.moveTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
-        poly.lineTo(RANDOM.nextInt(25), RANDOM.nextInt(25));
+        poly.moveTo(1, 1);
+        poly.lineTo(-1, 1);
+        poly.lineTo(-1, -1);
+        poly.lineTo(1, -1);
         poly.closePath();
         outline = poly;
-       
-        //Ellipse2D.Double circle = new Ellipse2D.Double(ship.getXNose(), ship.getYNose(), 1.0, 1.0);
-        //outline = circle;
         
-        // Schedule an acceleration in two seconds
-        new ParticipantCountdownTimer(this, "remove", 2000);
+        // Schedule the removal of the bullet
+        new ParticipantCountdownTimer(this, "remove", BULLET_DURATION);
     }
 
 
@@ -54,12 +55,16 @@ public class Flame extends Participant {
 
 
     /**
-     * Necessary Implementation of an unnecessary method
+     * When a bullet collides with a BulletDestroyer, it expires
      */
     @Override
     public void collidedWith (Participant p)
     {
-    	
+        if (p instanceof AlienBulletDestroyer)
+        {
+            // Expire the bullet from the game
+            Participant.expire(this);
+        }
     }
     
     /**
@@ -69,12 +74,14 @@ public class Flame extends Participant {
     @Override
     public void countdownComplete (Object payload)
     {
-        // Remove a dust particle after a given amount of time
+        // Remove the bullet
         if (payload.equals("remove"))
         {
         	// Expire the bullet from the game
-            Participant.expire(this);
-           
+            Participant.expire(this); 
         }
     }
 }
+
+
+

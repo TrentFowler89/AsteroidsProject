@@ -3,18 +3,19 @@ package asteroids.participants;
 import java.awt.Shape;
 
 import asteroids.Participant;
+import asteroids.destroyers.AlienShipDestroyer;
 import asteroids.destroyers.AsteroidDestroyer;
 import asteroids.destroyers.BulletDestroyer;
+
 import java.awt.geom.*;
 
 import asteroids.ParticipantCountdownTimer;
-
 import static asteroids.Constants.*;
 
 /**
  * Represents bullet
  */
-public class Bullet extends Participant implements AsteroidDestroyer
+public class Bullet extends Participant implements AsteroidDestroyer, AlienShipDestroyer
 {
     // The outline of the bullet
     private Shape outline;
@@ -34,9 +35,9 @@ public class Bullet extends Participant implements AsteroidDestroyer
         
         Path2D.Double poly = new Path2D.Double();
         poly.moveTo(1, 1);
-        poly.lineTo(-1, 1);
-        poly.lineTo(-1, -1);
-        poly.lineTo(1, -1);
+        poly.lineTo(0, 1);
+        poly.lineTo(0, 0);
+        poly.lineTo(1, 0);
         poly.closePath();
         outline = poly;
        
